@@ -5,7 +5,7 @@ using Newtonsoft.Json;
 using Sokolovsky;
 
 const string folderPath = @"d:\Sokolovsky\";
-const string connectionString = "Server=(localdb)\\mssqllocaldb;Database=master;Trusted_Connection=True;";
+const string connectionString = "User ID=root;Password=myPassword;Host=localhost;Port=5432;Database=myDataBase;Pooling=true;Min Pool Size=0;Max Pool Size=100;Connection Lifetime=0;";
 const int frequency = 1000;
 
 while (true) {
