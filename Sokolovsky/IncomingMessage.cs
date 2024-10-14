@@ -30,12 +30,11 @@ public struct Document(long id, string type) {
     public string Type { get; } = type;
 }
 
-public struct Attribute(string code, string attribute) {
+public struct SingleAttribute(string code, string attribute) {
     public string Code { get; } = code;
-    [JsonPropertyName("attribute")]
-    public string Name { get; } = attribute;
+    public string Attribute { get; } = attribute;
 }
 
-public struct Attributes(List<Attribute> attribute) {
-    public List<Attribute> Attribute { get; } = attribute;
+public struct Attributes(List<SingleAttribute> attribute) {
+    public List<SingleAttribute> Attribute { get; } = attribute;
 }
