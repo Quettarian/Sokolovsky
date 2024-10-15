@@ -18,11 +18,11 @@ public class IncomingMessageHandler {
         string json, xml;
         var status = 3;
         //2. Чтение json'a
-        using (var r = new StreamReader(_fileName)) { json = r.ReadToEnd(); }
+        using (var r = new StreamReader(_fileName)) { json = await r.ReadToEndAsync(); }
             
         //3. Запись json'a в БД со статусом 1 в случае успеха, либо 3 - неуспеха
         if (!string.IsNullOrEmpty(json)) status = 1;
-        SqlCommand insertCommand = new SqlCommand();
+        var insertCommand = new SqlCommand();
         insertCommand.CommandText = $"insert into invoices(date_time,invoice_json,status) values ({DateTime.Now},{json},{status})";
         insertCommand.Connection = _connection;
 

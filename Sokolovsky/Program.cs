@@ -2,12 +2,10 @@
 using Serilog;
 using Sokolovsky;
 
-const string folderPath = @"d:\Sokolovsky\";
-const string connectionString = "User ID=root;Password=myPassword;Host=localhost;Port=5432;Database=myDataBase;Pooling=true;Min Pool Size=0;Max Pool Size=100;Connection Lifetime=0;";
-const int frequency = 10000;
+var folderPath = Directory.GetCurrentDirectory();
 
 Log.Logger = new LoggerConfiguration().MinimumLevel.Information().WriteTo
-    .File(Path.Combine(Directory.GetCurrentDirectory(), "Logs", DateTime.Now.ToString("yyyyMMdd"), ".txt"),
+    .File(Path.Combine(folderPath, "Logs", DateTime.Now.ToString("yyyyMMdd"), ".txt"),
         outputTemplate: "{Timestamp: yyyy-MM-dd HH:mm:ss.fff} [{Level:u3}]  {Message: lj} {NewLine}{Exception}",
         rollingInterval: RollingInterval.Day, 
         rollOnFileSizeLimit: true )
@@ -22,7 +20,7 @@ while (true) {
         .ToList();
     
     if (fileNames.Count > 0) {
-        await using SqlConnection connection = new SqlConnection(connectionString);
+        await using SqlConnection connection = new SqlConnection(AppConfiguration.Config.ConnectionString);
         await connection.OpenAsync();
         
         fileNames.ForEach(fileName => new IncomingMessageHandler(fileName, connection).Processing());
@@ -31,6 +29,6 @@ while (true) {
     }
     
     
-    Thread.Sleep(frequency);
+    Thread.Sleep(AppConfiguration.Config.MonitoringFrequency * 1000);
 }
 
