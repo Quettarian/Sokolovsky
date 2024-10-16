@@ -23,14 +23,26 @@ while (true) {
         Log.Information($"Обнаружено {fileNames.Count} новых сообщений");
         await using SqlConnection connection = new SqlConnection(AppConfiguration.Config.ConnectionString);
         await connection.OpenAsync();
-        
-        fileNames.ForEach(fileName => new IncomingMessageHandler(fileName, connection).Processing());
+
+        var c = 0;
+        fileNames.ForEach(fileName => {
+            if (Task.Run(() => new IncomingMessageHandler(fileName, connection).Processing()).Result)
+                c++;
+        });
 
         connection.Close();
-        Log.Information("Сообщения успешно обработаны");
+        if (c == fileNames.Count)
+            Log.Information("Сообщения успешно обработаны");
+        else
+            Log.Information($"{c} сообщений из {fileNames.Count} успешно обработаны");
     }
     
     
     Thread.Sleep(AppConfiguration.Config.MonitoringFrequency * 1000);
 }
 
+// 1. Не стал усложнять большим количеством одно-двух строчных классов и методов, т.к. для MVP мне показалось этого достаточно
+// 2. Логирование можно было бы реализовать подробнее, но не уверен, что требуется
+// 3. Для записи и обновления данных в БД решил не использовать ORM системыы, а только пару запросов
+// 4. Не стал параллелить весь цикл, хотя, по идее, при большом количестве входных сообщений это первое,
+//   что нужно сделать, но тут ещё есть над чем подумать
