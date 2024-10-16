@@ -8,6 +8,7 @@ namespace Sokolovsky;
 public class IncomingMessageHandler {
     private string _fileName;
     private SqlConnection _connection;
+    private const string ArchiveFolderName = "ArchiveMessages";
 
     public IncomingMessageHandler(string fileName, SqlConnection connection) {
         _fileName = fileName;
@@ -43,7 +44,7 @@ public class IncomingMessageHandler {
         var responseText = await response.Content.ReadAsStringAsync();
 
         //7. Обновление статуса отправки в БД
-        SqlCommand updateCommand = new SqlCommand();
+        var updateCommand = new SqlCommand();
         updateCommand.CommandText = "update invoices set status=2 where id=(select max(id) from invoices)";
         updateCommand.Connection = _connection;
 
@@ -53,7 +54,10 @@ public class IncomingMessageHandler {
                 File.Delete(_fileName);
                 break;
             case FileUtilizationType.Moving:
-                throw new NotImplementedException();
+                var dir = Directory.GetCurrentDirectory();
+                File.Move(Path.Combine(dir, _fileName), 
+                    Path.Combine(dir, ArchiveFolderName, _fileName));
+                break;
         }
     }
 }

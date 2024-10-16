@@ -20,12 +20,14 @@ while (true) {
         .ToList();
     
     if (fileNames.Count > 0) {
+        Log.Information($"Обнаружено {fileNames.Count} новых сообщений");
         await using SqlConnection connection = new SqlConnection(AppConfiguration.Config.ConnectionString);
         await connection.OpenAsync();
         
         fileNames.ForEach(fileName => new IncomingMessageHandler(fileName, connection).Processing());
 
         connection.Close();
+        Log.Information("Сообщения успешно обработаны");
     }
     
     
